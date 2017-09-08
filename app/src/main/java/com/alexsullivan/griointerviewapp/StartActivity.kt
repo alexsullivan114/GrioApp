@@ -3,12 +3,15 @@ package com.alexsullivan.griointerviewapp
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import com.alexsullivan.griointerviewapp.github.GithubNetworkRepository
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_start.*
 
 class StartActivity : AppCompatActivity(), StartView {
     // Build our presenter. This is left mutable so it can be altered in
     // espresso tests, and a dummy presenter can be inserted.
-    var presenter: StartPresenter = StartPresenterImpl(GithubNetworkRepository.build())
+    var presenter: StartPresenter = StartPresenterImpl(GithubNetworkRepository.build(),
+        Schedulers.io(), AndroidSchedulers.mainThread())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

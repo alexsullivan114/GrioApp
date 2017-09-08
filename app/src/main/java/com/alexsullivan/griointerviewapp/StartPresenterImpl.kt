@@ -1,13 +1,14 @@
 package com.alexsullivan.griointerviewapp
 
 import com.alexsullivan.griointerviewapp.github.GithubRepository
+import io.reactivex.Scheduler
 import io.reactivex.Single
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.functions.BiFunction
-import io.reactivex.schedulers.Schedulers
 
-class StartPresenterImpl(private val repository: GithubRepository): StartPresenter() {
+class StartPresenterImpl(private val repository: GithubRepository,
+                         private val backgroundScheduler: Scheduler,
+                         private val foregroundScheduler: Scheduler): StartPresenter() {
 
     private val githubDisposable: Disposable? = null
 
@@ -31,8 +32,8 @@ class StartPresenterImpl(private val repository: GithubRepository): StartPresent
             .zipWith(buildStarCountObservable(usernameTwo), BiFunction<Int, Int, Pair<Int, Int>> { t1, t2 ->
                 t1 to t2
             })
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
+            .subscribeOn(backgroundScheduler)
+            .observeOn(foregroundScheduler)
             .subscribe({ (first, second) ->
                 if (first > second) {
                     view?.showWinnerScreen(usernameOne)
@@ -40,10 +41,6 @@ class StartPresenterImpl(private val repository: GithubRepository): StartPresent
                     view?.showWinnerScreen(usernameTwo)
                 }
             }, { view?.showNetworkError() })
-    }
-
-    private fun declareWinner(first: Int, second: Int) {
-
     }
 
     private fun validateUsername(username: String?) = !username.isNullOrEmpty()
