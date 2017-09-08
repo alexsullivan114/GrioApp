@@ -3,4 +3,5 @@
 
     <string name="input_username">Input Github user name</string>
     <string name="start">Start!</string>
+    <string name="invalid_username">Please enter a valid username.</string>
 </resources>
