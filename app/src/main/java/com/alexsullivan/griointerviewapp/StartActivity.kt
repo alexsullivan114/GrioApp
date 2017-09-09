@@ -2,7 +2,10 @@ package com.alexsullivan.griointerviewapp
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.view.View
+import com.alexsullivan.griointerviewapp.details.DetailsActivity
 import com.alexsullivan.griointerviewapp.github.GithubNetworkRepository
+import com.alexsullivan.griointerviewapp.github.GithubUser
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_start.*
@@ -17,6 +20,8 @@ class StartActivity : AppCompatActivity(), StartView {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_start)
         startButton.setOnClickListener {
+            error.visibility = View.GONE
+            progressBar.visibility = View.VISIBLE
             val inputOne = userInputOne.text.toString()
             val inputTwo = userInputTwo.text.toString()
             presenter.startClicked(inputOne, inputTwo)
@@ -33,19 +38,23 @@ class StartActivity : AppCompatActivity(), StartView {
         presenter.detach(this)
     }
 
-    override fun showWinnerScreen(winner: String) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun showWinnerScreen(winner: GithubUser, loser: GithubUser) {
+        progressBar.visibility = View.GONE
+        startActivity(DetailsActivity.buildIntent(this, winner, loser))
     }
 
     override fun showNetworkError() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        progressBar.visibility = View.GONE
+        error.visibility = View.VISIBLE
     }
 
     override fun showUserOneInputError() {
         textLayoutOne.error = getString(R.string.invalid_username)
+        progressBar.visibility = View.GONE
     }
 
     override fun showUserTwoInputError() {
         textLayoutTwo.error = getString(R.string.invalid_username)
+        progressBar.visibility = View.GONE
     }
 }

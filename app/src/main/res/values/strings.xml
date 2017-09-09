@@ -4,4 +4,7 @@
     <string name="input_username">Input Github user name</string>
     <string name="start">Start!</string>
     <string name="invalid_username">Please enter a valid username.</string>
+    <string name="winner_is">The winner is…%1$s!</string>
+    <string name="star_count">Stars: %1$d</string>
+    <string name="network_error">Network error. Try again later.</string>
 </resources>

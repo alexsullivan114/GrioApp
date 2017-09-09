@@ -1,6 +1,7 @@
 package com.alexsullivan.griointerviewapp
 
 import com.alexsullivan.griointerviewapp.github.GithubRepository
+import com.alexsullivan.griointerviewapp.github.GithubUser
 import io.reactivex.Scheduler
 import io.reactivex.Single
 import io.reactivex.disposables.Disposable
@@ -28,19 +29,24 @@ class StartPresenterImpl(private val repository: GithubRepository,
         }
         // Now that we know we have valid usernames (at least, the string is valid) let's fetch our
         // list of repos and compare star numbers!
-        buildStarCountObservable(usernameOne)
-            .zipWith(buildStarCountObservable(usernameTwo), BiFunction<Int, Int, Pair<Int, Int>> { t1, t2 ->
-                t1 to t2
-            })
+        val firstUser = repository.loadRepositoryData(usernameOne).toList().map { GithubUser(usernameOne, it) }
+        val secondUser = repository.loadRepositoryData(usernameTwo).toList().map { GithubUser(usernameTwo, it) }
+        Single.zip(firstUser, secondUser, BiFunction<GithubUser, GithubUser, Pair<GithubUser, GithubUser>> { t1, t2 ->  t1 to t2})
             .subscribeOn(backgroundScheduler)
             .observeOn(foregroundScheduler)
-            .subscribe({ (first, second) ->
-                if (first > second) {
-                    view?.showWinnerScreen(usernameOne)
-                } else {
-                    view?.showWinnerScreen(usernameTwo)
-                }
-            }, { view?.showNetworkError() })
+            .subscribe({
+                chooseWinner(it.first, it.second)
+            }, {
+                view?.showNetworkError()
+            })
+    }
+
+    private fun chooseWinner(userOne: GithubUser, userTwo: GithubUser) {
+        if (userOne.numStars() > userTwo.numStars()) {
+            view?.showWinnerScreen(userOne, userTwo)
+        } else {
+            view?.showWinnerScreen(userTwo, userOne)
+        }
     }
 
     private fun validateUsername(username: String?) = !username.isNullOrEmpty()

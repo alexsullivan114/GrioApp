@@ -9,6 +9,9 @@ import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 
+/**
+ * An implementation of GithubRepository that fetches github information from the network.
+ */
 class GithubNetworkRepository(private val service: GithubService): GithubRepository {
 
     companion object {
