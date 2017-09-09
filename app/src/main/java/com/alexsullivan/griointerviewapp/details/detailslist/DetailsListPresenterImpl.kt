@@ -7,7 +7,9 @@ class DetailsListPresenterImpl(private val user: GithubUser): DetailsListPresent
     override fun getUserRepos() = user.repos.sortedByDescending { it.stars }
 
     override fun repoClicked(repo: GithubUserRepo) {
-        val url = "https://github.com/${user.name}/${repo.title}"
-        view?.openRepoWebview(url)
+        if (!user.name.isEmpty() && !repo.title.isEmpty()) {
+            val url = "https://github.com/${user.name}/${repo.title}"
+            view?.openRepoWebview(url)
+        }
     }
 }

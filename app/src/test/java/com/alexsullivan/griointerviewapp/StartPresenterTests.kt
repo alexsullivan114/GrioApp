@@ -1,6 +1,7 @@
 package com.alexsullivan.griointerviewapp
 
 import com.alexsullivan.griointerviewapp.github.GithubRepository
+import com.alexsullivan.griointerviewapp.github.GithubUser
 import com.alexsullivan.griointerviewapp.github.GithubUserRepo
 import io.reactivex.Observable
 import io.reactivex.schedulers.TestScheduler
@@ -31,8 +32,9 @@ class StartPresenterTests {
 
         val view = object: StartView {
             var winnerSelected = false
-            override fun showWinnerScreen(winner: String) {
-                Assert.assertEquals("Alex", winner)
+
+            override fun showWinnerScreen(winner: GithubUser, loser: GithubUser) {
+                Assert.assertEquals("Alex", winner.name)
                 winnerSelected = true
             }
 
@@ -73,8 +75,9 @@ class StartPresenterTests {
             var winnerSelected = false
             var userTwoInputError = false
             var userOneInputError = false
-            override fun showWinnerScreen(winner: String) {
-                Assert.assertEquals("Alex", winner)
+
+            override fun showWinnerScreen(winner: GithubUser, loser: GithubUser) {
+                Assert.assertEquals("Alex", winner.name)
                 winnerSelected = true
             }
 
