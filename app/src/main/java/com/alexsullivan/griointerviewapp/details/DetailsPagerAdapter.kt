@@ -9,7 +9,7 @@ class DetailsPagerAdapter(fragmentManager: FragmentManager,
                           private val firstUser: GithubUser,
                           private val secondUser: GithubUser): FragmentStatePagerAdapter(fragmentManager) {
 
-    override fun getItem(position: Int) = DetailsListFragment.newInstance(getUser(position).repos)
+    override fun getItem(position: Int) = DetailsListFragment.newInstance(getUser(position))
     override fun getCount() = 2
     override fun getPageTitle(position: Int) = getUser(position).name
 

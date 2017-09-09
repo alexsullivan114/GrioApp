@@ -9,7 +9,13 @@ import com.alexsullivan.griointerviewapp.details.detailslist.UserRepoListAdapter
 import com.alexsullivan.griointerviewapp.github.GithubUserRepo
 import kotlinx.android.synthetic.main.adapter_repo_item.view.*
 
-class UserRepoListAdapter(private val repoList: Array<GithubUserRepo>): RecyclerView.Adapter<RepoViewHolder>() {
+/**
+ * Recyclerview adapter to display github repos.
+ * @param repoList: A list of GithubUserRepo's
+ * @param clickListener A callback to handle a repo being clicked.
+ */
+class UserRepoListAdapter(private val repoList: List<GithubUserRepo>,
+                          private val clickListener: ClickListener): RecyclerView.Adapter<RepoViewHolder>() {
     override fun getItemCount() = repoList.size
 
     override fun onBindViewHolder(holder: RepoViewHolder, position: Int) {
@@ -24,6 +30,15 @@ class UserRepoListAdapter(private val repoList: Array<GithubUserRepo>): Recycler
     }
 
     inner class RepoViewHolder(val view: View): RecyclerView.ViewHolder(view) {
+        init {
+            view.setOnClickListener {
+                clickListener.repoClicked(repoList[adapterPosition])
+            }
+        }
+    }
 
+    // Simple callback to handle a repo being clicked.
+    interface ClickListener {
+        fun repoClicked(repo: GithubUserRepo)
     }
 }
