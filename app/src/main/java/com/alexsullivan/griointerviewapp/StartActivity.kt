@@ -4,8 +4,10 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import com.alexsullivan.griointerviewapp.details.DetailsActivity
+import com.alexsullivan.griointerviewapp.extensions.textObservable
 import com.alexsullivan.griointerviewapp.github.GithubNetworkRepository
 import com.alexsullivan.griointerviewapp.github.GithubUser
+import com.bumptech.glide.Glide
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_start.*
@@ -22,9 +24,7 @@ class StartActivity : AppCompatActivity(), StartView {
         startButton.setOnClickListener {
             error.visibility = View.GONE
             progressBar.visibility = View.VISIBLE
-            val inputOne = userInputOne.text.toString()
-            val inputTwo = userInputTwo.text.toString()
-            presenter.startClicked(inputOne, inputTwo)
+            presenter.startClicked()
         }
     }
 
@@ -37,6 +37,22 @@ class StartActivity : AppCompatActivity(), StartView {
         super.onStop()
         presenter.detach(this)
     }
+
+    override fun updateUserOneAvatar(url: String) {
+        Glide.with(this)
+            .load(url)
+            .into(userOneAvatar)
+    }
+
+    override fun updateUserTwoAvatar(url: String) {
+        Glide.with(this)
+            .load(url)
+            .into(userTwoAvatar)
+    }
+
+    override fun getUserOneTextInputObservable() = userInputOne.textObservable()
+
+    override fun getUserTwoTextInputObservable() = userInputTwo.textObservable()
 
     override fun showWinnerScreen(winner: GithubUser, loser: GithubUser) {
         progressBar.visibility = View.GONE
@@ -56,5 +72,13 @@ class StartActivity : AppCompatActivity(), StartView {
     override fun showUserTwoInputError() {
         textLayoutTwo.error = getString(R.string.invalid_username)
         progressBar.visibility = View.GONE
+    }
+
+    override fun hideUserOneInputError() {
+        textLayoutOne.isErrorEnabled = false
+    }
+
+    override fun hideUserTwoInputError() {
+        textLayoutTwo.isErrorEnabled = false
     }
 }

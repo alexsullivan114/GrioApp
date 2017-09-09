@@ -2,43 +2,39 @@ package com.alexsullivan.griointerviewapp
 
 import com.alexsullivan.griointerviewapp.github.GithubRepository
 import com.alexsullivan.griointerviewapp.github.GithubUser
+import io.reactivex.Observable
 import io.reactivex.Scheduler
-import io.reactivex.Single
-import io.reactivex.disposables.Disposable
-import io.reactivex.functions.BiFunction
+import io.reactivex.disposables.CompositeDisposable
+import java.util.concurrent.TimeUnit
 
 class StartPresenterImpl(private val repository: GithubRepository,
                          private val backgroundScheduler: Scheduler,
                          private val foregroundScheduler: Scheduler): StartPresenter() {
 
-    private val githubDisposable: Disposable? = null
+    private val disposables = CompositeDisposable()
+    private var firstUser: GithubUser? = null
+    private var secondUser: GithubUser? = null
+
+    override fun attach(view: StartView) {
+        super.attach(view)
+        bindInputs()
+    }
 
     override fun detach(view: StartView) {
         super.detach(view)
-        githubDisposable?.dispose()
+        disposables.clear()
     }
 
-    override fun startClicked(usernameOne: String, usernameTwo: String) {
-        // Guard against invalid usernames - thinking of mainly the empty string here.
-        if (!validateUsername(usernameOne)) {
+    override fun startClicked() {
+        if (firstUser == null) {
             view?.showUserOneInputError()
-            return
-        } else if (!validateUsername(usernameTwo)) {
+        } else if (secondUser == null) {
             view?.showUserTwoInputError()
-            return
+        } else {
+            firstUser?.let { firstUser -> secondUser?.let { secondUser ->
+                chooseWinner(firstUser, secondUser)
+            } }
         }
-        // Now that we know we have valid usernames (at least, the string is valid) let's fetch our
-        // list of repos and compare star numbers!
-        val firstUser = repository.loadRepositoryData(usernameOne).toList().map { GithubUser(usernameOne, it) }
-        val secondUser = repository.loadRepositoryData(usernameTwo).toList().map { GithubUser(usernameTwo, it) }
-        Single.zip(firstUser, secondUser, BiFunction<GithubUser, GithubUser, Pair<GithubUser, GithubUser>> { t1, t2 ->  t1 to t2})
-            .subscribeOn(backgroundScheduler)
-            .observeOn(foregroundScheduler)
-            .subscribe({
-                chooseWinner(it.first, it.second)
-            }, {
-                view?.showNetworkError()
-            })
     }
 
     private fun chooseWinner(userOne: GithubUser, userTwo: GithubUser) {
@@ -49,20 +45,52 @@ class StartPresenterImpl(private val repository: GithubRepository,
         }
     }
 
-    private fun validateUsername(username: String?) = !username.isNullOrEmpty()
-
-    /**
-     * Convenience function to convert a list of user repos into a total number of stars for each
-     * user repo.
-     * @param username: The username to use when fetching the repo information
-     *
-     * TODO: Make a special exception if the repo isn't found, and then forward that along here.
-     */
-    private fun buildStarCountObservable(username: String): Single<Int> {
-        return repository.loadRepositoryData(username)
-            .map { it.stars }
-            .reduce(0, {acc, value ->
-                acc + value
+    private fun bindInputs() {
+        // Set out first user to null when the user types something so we've got up to date
+        // data!
+        view?.let { view ->
+            val userOneTextObservable = view.getUserOneTextInputObservable()
+                .doOnNext { firstUser = null }
+            val userTwoTextObservable = view.getUserTwoTextInputObservable()
+                .doOnNext { secondUser = null }
+            // Now bind our inputs defined above and show some feedback depending on the
+            // result of the call.
+            bindUserInputObservable(userOneTextObservable, {
+                firstUser = it
+                view.updateUserOneAvatar(it.avatarUrl)
+                view.hideUserOneInputError()
+            }, {
+                firstUser = null
+                view.showUserOneInputError()
             })
+
+            bindUserInputObservable(userTwoTextObservable, {
+                secondUser = it
+                view.updateUserTwoAvatar(it.avatarUrl)
+                view.hideUserTwoInputError()
+            }, {
+                secondUser = null
+                view.showUserTwoInputError()
+            })
+        }
+    }
+
+    private fun bindUserInputObservable(observable: Observable<String>,
+                                        successBlock: (GithubUser) -> Unit,
+                                        emptyBlock: () -> Unit) {
+        disposables.add(observable
+            .debounce(500, TimeUnit.MILLISECONDS, backgroundScheduler)
+            .flatMapSingle { repository.loadUserData(it).toList() }
+            .subscribeOn(backgroundScheduler)
+            .observeOn(foregroundScheduler)
+            .subscribe({users ->
+                if (users.size == 0) {
+                    emptyBlock()
+                } else {
+                    successBlock(users[0])
+                }
+            }, {
+                view?.showNetworkError()
+            }))
     }
 }

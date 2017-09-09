@@ -39,6 +39,12 @@ dependencies {
     compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
     // Gson for convenient deserialization
     compile "com.google.code.gson:gson:2.8.0"
+    // Circular imageview because making images into circles is shockingly difficult.
+    compile 'de.hdodenhof:circleimageview:2.1.0'
+    // Glide for loading images safely
+    compile 'com.github.bumptech.glide:glide:4.1.1', {
+        exclude group: 'com.android.support'
+    }
 
     testCompile 'junit:junit:4.12'
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {

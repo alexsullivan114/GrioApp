@@ -3,12 +3,7 @@ package com.alexsullivan.griointerviewapp.github
 import android.os.Parcel
 import android.os.Parcelable
 
-class GithubUser(val name: String, val repos: List<GithubUserRepo>) : Parcelable {
-    constructor(parcel: Parcel) : this(
-        parcel.readString(),
-        parcel.createTypedArrayList(GithubUserRepo)) {
-    }
-
+data class GithubUser(val name: String, val repos: List<GithubUserRepo>, val avatarUrl: String) : Parcelable {
     fun numStars(): Int {
         if (repos.isEmpty()) {
             return 0
@@ -17,12 +12,19 @@ class GithubUser(val name: String, val repos: List<GithubUserRepo>) : Parcelable
         }
     }
 
-    override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeString(name)
-        parcel.writeTypedList(repos)
-    }
+    constructor(source: Parcel) : this(
+        source.readString(),
+        source.createTypedArrayList(GithubUserRepo.CREATOR),
+        source.readString()
+    )
 
     override fun describeContents() = 0
+
+    override fun writeToParcel(dest: Parcel, flags: Int) = with(dest) {
+        writeString(name)
+        writeTypedList(repos)
+        writeString(avatarUrl)
+    }
 
     companion object CREATOR : Parcelable.Creator<GithubUser> {
         override fun createFromParcel(parcel: Parcel) = GithubUser(parcel)

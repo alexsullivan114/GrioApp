@@ -6,5 +6,5 @@ import io.reactivex.Observable
  * Contract for loading github user repo data.
  */
 interface GithubRepository {
-    fun loadRepositoryData(username: String): Observable<GithubUserRepo>
+    fun loadUserData(username: String): Observable<GithubUser>
 }
