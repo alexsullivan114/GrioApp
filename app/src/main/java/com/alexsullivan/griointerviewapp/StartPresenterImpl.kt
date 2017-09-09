@@ -37,6 +37,23 @@ class StartPresenterImpl(private val repository: GithubRepository,
         }
     }
 
+    override fun firstUserAvatarClicked() {
+        firstUser?.let {
+            userAvatarClicked(it.name)
+        }
+    }
+
+    override fun secondUserAvatarClicked() {
+        secondUser?.let {
+            userAvatarClicked(it.name)
+        }
+    }
+
+    private fun userAvatarClicked(name: String) {
+        val url = "https://github.com/$name/"
+        view?.openUserWebview(url)
+    }
+
     private fun chooseWinner(userOne: GithubUser, userTwo: GithubUser) {
         if (userOne.numStars() > userTwo.numStars()) {
             view?.showWinnerScreen(userOne, userTwo)

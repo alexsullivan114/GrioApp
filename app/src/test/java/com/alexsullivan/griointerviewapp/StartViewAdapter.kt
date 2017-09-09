@@ -14,4 +14,5 @@ abstract class StartViewAdapter: StartView {
     override fun getUserTwoTextInputObservable() = Observable.empty<String>()
     override fun updateUserOneAvatar(url: String) {}
     override fun updateUserTwoAvatar(url: String) {}
+    override fun openUserWebview(url: String) {}
 }

@@ -15,4 +15,5 @@ interface StartView: ViewInterface {
     fun getUserTwoTextInputObservable(): Observable<String>
     fun updateUserOneAvatar(url: String)
     fun updateUserTwoAvatar(url: String)
+    fun openUserWebview(url: String)
 }

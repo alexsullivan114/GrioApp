@@ -1,6 +1,9 @@
 package com.alexsullivan.griointerviewapp
 
+import android.net.Uri
 import android.os.Bundle
+import android.support.customtabs.CustomTabsIntent
+import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import com.alexsullivan.griointerviewapp.details.DetailsActivity
@@ -21,10 +24,19 @@ class StartActivity : AppCompatActivity(), StartView {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_start)
+
         startButton.setOnClickListener {
             error.visibility = View.GONE
             progressBar.visibility = View.VISIBLE
             presenter.startClicked()
+        }
+
+        userOneAvatar.setOnClickListener {
+            presenter.firstUserAvatarClicked()
+        }
+
+        userTwoAvatar.setOnClickListener {
+            presenter.secondUserAvatarClicked()
         }
     }
 
@@ -80,5 +92,11 @@ class StartActivity : AppCompatActivity(), StartView {
 
     override fun hideUserTwoInputError() {
         textLayoutTwo.isErrorEnabled = false
+    }
+
+    override fun openUserWebview(url: String) {
+        val builder = CustomTabsIntent.Builder()
+        builder.setToolbarColor(ContextCompat.getColor(this, R.color.colorPrimary))
+        builder.build().launchUrl(this, Uri.parse(url))
     }
 }
