@@ -5,6 +5,7 @@ import com.alexsullivan.griointerviewapp.github.GithubUser
 import io.reactivex.Observable
 import io.reactivex.Scheduler
 import io.reactivex.disposables.CompositeDisposable
+import java.io.InterruptedIOException
 import java.util.concurrent.TimeUnit
 
 class StartPresenterImpl(private val repository: GithubRepository,
@@ -100,6 +101,7 @@ class StartPresenterImpl(private val repository: GithubRepository,
             .flatMapSingle { repository.loadUserData(it).toList() }
             .subscribeOn(backgroundScheduler)
             .observeOn(foregroundScheduler)
+            .retry { t1, t2 -> t2 is InterruptedIOException }
             .subscribe({users ->
                 if (users.size == 0) {
                     emptyBlock()
