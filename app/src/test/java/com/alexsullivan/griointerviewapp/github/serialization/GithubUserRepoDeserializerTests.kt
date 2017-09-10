@@ -10,7 +10,7 @@ class GithubUserRepoDeserializerTests {
     @Test
     fun testExpectedDeserialization() {
         val deserializer = GithubUserRepoDeserializer()
-        val jsonArray = JsonParser().parse(alexCannedResponse).asJsonArray
+        val jsonArray = JsonParser().parse(alexRepoCannedResponse).asJsonArray
 
         val dbRepo = GithubUserRepo("Database-Upgrade-Annotation-Processor", 0)
         Assert.assertEquals(dbRepo, deserializer.deserialize(jsonArray[0], null, null))

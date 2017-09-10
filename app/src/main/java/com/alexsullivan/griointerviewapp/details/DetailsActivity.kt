@@ -9,6 +9,7 @@ import android.transition.Slide
 import android.transition.TransitionManager
 import android.view.Gravity
 import android.view.View
+import android.view.ViewTreeObserver
 import com.alexsullivan.griointerviewapp.R
 import com.alexsullivan.griointerviewapp.extensions.addEndListener
 import com.alexsullivan.griointerviewapp.github.GithubUser
@@ -43,7 +44,14 @@ class DetailsActivity: AppCompatActivity(), DetailsView {
     override fun onResume() {
         super.onResume()
         presenter.attach(this)
-        centerText.postDelayed({animateWinnerText()}, 1500)
+        // Once our textview draws, leave it on the screen for a second before
+        // animating away.
+        centerText.viewTreeObserver.addOnGlobalLayoutListener(object: ViewTreeObserver.OnGlobalLayoutListener {
+            override fun onGlobalLayout() {
+                centerText.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                centerText.postDelayed({animateWinnerText()}, 1000)
+            }
+        })
     }
 
     override fun onPause() {

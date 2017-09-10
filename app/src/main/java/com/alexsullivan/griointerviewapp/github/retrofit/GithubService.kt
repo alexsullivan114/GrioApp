@@ -12,9 +12,6 @@ import retrofit2.http.Path
  * Retrofit interface to interact with the Github api.
  */
 interface GithubService {
-    companion object {
-        val baseUrl = "https://api.github.com/"
-    }
 
     /**
      * Load a users repos.

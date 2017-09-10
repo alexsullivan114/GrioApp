@@ -1,6 +1,6 @@
 package com.alexsullivan.griointerviewapp.github.serialization
 
-val alexCannedResponse = """[{
+val alexRepoCannedResponse = """[{
 	"id": 86829744,
 	"name": "Database-Upgrade-Annotation-Processor",
 	"full_name": "alexsullivan114/Database-Upgrade-Annotation-Processor",
@@ -1235,3 +1235,72 @@ val alexMalformedResponse = """[{
 	"watchers": 0,
 	"default_branch": "master"
 }]"""
+
+
+val alexUserCannedResponse = """
+    {
+	"login": "alex",
+	"id": 772,
+	"avatar_url": "https://avatars2.githubusercontent.com/u/772?v=4",
+	"gravatar_id": "",
+	"url": "https://api.github.com/users/alex",
+	"html_url": "https://github.com/alex",
+	"followers_url": "https://api.github.com/users/alex/followers",
+	"following_url": "https://api.github.com/users/alex/following{/other_user}",
+	"gists_url": "https://api.github.com/users/alex/gists{/gist_id}",
+	"starred_url": "https://api.github.com/users/alex/starred{/owner}{/repo}",
+	"subscriptions_url": "https://api.github.com/users/alex/subscriptions",
+	"organizations_url": "https://api.github.com/users/alex/orgs",
+	"repos_url": "https://api.github.com/users/alex/repos",
+	"events_url": "https://api.github.com/users/alex/events{/privacy}",
+	"received_events_url": "https://api.github.com/users/alex/received_events",
+	"type": "User",
+	"site_admin": false,
+	"name": "Alex Gaynor",
+	"company": "Mozilla",
+	"blog": "https://alexgaynor.net",
+	"location": "Washington D.C.",
+	"email": null,
+	"hireable": null,
+	"bio": "I program computers. Currently working for Mozilla in Washington DC and opening up some sources in my free time. @usds alumnus.",
+	"public_repos": 362,
+	"public_gists": 68,
+	"followers": 3773,
+	"following": 41,
+	"created_at": "2008-02-24T20:44:41Z",
+	"updated_at": "2017-08-19T09:40:38Z"
+}
+"""
+
+val alexUserEmptyFieldsCannedResponse = """
+    {
+	"id": 772,
+	"gravatar_id": "",
+	"url": "https://api.github.com/users/alex",
+	"html_url": "https://github.com/alex",
+	"followers_url": "https://api.github.com/users/alex/followers",
+	"following_url": "https://api.github.com/users/alex/following{/other_user}",
+	"gists_url": "https://api.github.com/users/alex/gists{/gist_id}",
+	"starred_url": "https://api.github.com/users/alex/starred{/owner}{/repo}",
+	"subscriptions_url": "https://api.github.com/users/alex/subscriptions",
+	"organizations_url": "https://api.github.com/users/alex/orgs",
+	"repos_url": "https://api.github.com/users/alex/repos",
+	"events_url": "https://api.github.com/users/alex/events{/privacy}",
+	"received_events_url": "https://api.github.com/users/alex/received_events",
+	"type": "User",
+	"site_admin": false,
+	"name": "Alex Gaynor",
+	"company": "Mozilla",
+	"blog": "https://alexgaynor.net",
+	"location": "Washington D.C.",
+	"email": null,
+	"hireable": null,
+	"bio": "I program computers. Currently working for Mozilla in Washington DC and opening up some sources in my free time. @usds alumnus.",
+	"public_repos": 362,
+	"public_gists": 68,
+	"followers": 3773,
+	"following": 41,
+	"created_at": "2008-02-24T20:44:41Z",
+	"updated_at": "2017-08-19T09:40:38Z"
+}
+"""

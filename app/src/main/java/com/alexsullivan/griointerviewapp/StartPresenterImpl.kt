@@ -2,6 +2,7 @@ package com.alexsullivan.griointerviewapp
 
 import com.alexsullivan.griointerviewapp.github.GithubRepository
 import com.alexsullivan.griointerviewapp.github.GithubUser
+import com.alexsullivan.griointerviewapp.github.buildGithubUserUrl
 import io.reactivex.Observable
 import io.reactivex.Scheduler
 import io.reactivex.disposables.CompositeDisposable
@@ -13,6 +14,7 @@ class StartPresenterImpl(private val repository: GithubRepository,
                          private val foregroundScheduler: Scheduler): StartPresenter() {
 
     private val disposables = CompositeDisposable()
+
     private var firstUser: GithubUser? = null
     private var secondUser: GithubUser? = null
 
@@ -26,6 +28,10 @@ class StartPresenterImpl(private val repository: GithubRepository,
         disposables.clear()
     }
 
+    /**
+     * The user clicked start. If either of our github users are missing,
+     * we'll show an error message.
+     */
     override fun startClicked() {
         if (firstUser == null) {
             view?.showUserOneInputError()
@@ -51,10 +57,11 @@ class StartPresenterImpl(private val repository: GithubRepository,
     }
 
     private fun userAvatarClicked(name: String) {
-        val url = "https://github.com/$name/"
-        view?.openUserWebview(url)
+        view?.openUserWebview(buildGithubUserUrl(name))
     }
 
+    // Simple helper function to compare two github users and choose a winner,
+    // notifying the UI to react accordingly.
     private fun chooseWinner(userOne: GithubUser, userTwo: GithubUser) {
         if (userOne.numStars() > userTwo.numStars()) {
             view?.showWinnerScreen(userOne, userTwo)
@@ -63,14 +70,15 @@ class StartPresenterImpl(private val repository: GithubRepository,
         }
     }
 
+    /**
+     * Helper function to coordinate our text input observables reaction logic.
+     */
     private fun bindInputs() {
-        // Set out first user to null when the user types something so we've got up to date
-        // data!
+        // Set out first user to null when the user types something so since they're looking up
+        // a new user.
         view?.let { view ->
-            val userOneTextObservable = view.getUserOneTextInputObservable()
-                .doOnNext { firstUser = null }
-            val userTwoTextObservable = view.getUserTwoTextInputObservable()
-                .doOnNext { secondUser = null }
+            val userOneTextObservable = view.getUserOneTextInputObservable().doOnNext { firstUser = null }
+            val userTwoTextObservable = view.getUserTwoTextInputObservable().doOnNext { secondUser = null }
             // Now bind our inputs defined above and show some feedback depending on the
             // result of the call.
             bindUserInputObservable(userOneTextObservable, {
@@ -93,15 +101,30 @@ class StartPresenterImpl(private val repository: GithubRepository,
         }
     }
 
-    private fun bindUserInputObservable(observable: Observable<String>,
+    /**
+     * Helper function to bind our text streams and look up users.
+     * @param textObservable Observable of strings
+     * @param successBlock Block to call after a user is retrieved
+     * @param emptyBlock block to call if no users are returned.
+     */
+    private fun bindUserInputObservable(textObservable: Observable<String>,
                                         successBlock: (GithubUser) -> Unit,
                                         emptyBlock: () -> Unit) {
-        disposables.add(observable
+        disposables.add(textObservable
+            // Debounce this input - we'll only act on this string input if the user
+            // stops typing for 500 milliseconds. That way we only make an API call
+            // when the user is done (hopefully) typing.
             .debounce(500, TimeUnit.MILLISECONDS, backgroundScheduler)
             .flatMapSingle { repository.loadUserData(it).toList() }
             .subscribeOn(backgroundScheduler)
             .observeOn(foregroundScheduler)
+            // Our thread can be interrupted - but we don't want to kill the stream
+            // if that happens. As such, we'll just retry if we can that exception.
+            // Otherwise, show it to the user.
             .retry { t1, t2 -> t2 is InterruptedIOException }
+            // If we get zero users back utilize the empty block.
+            // If we get > 0 users, take the first one and pass it on through to the
+            // success block.
             .subscribe({users ->
                 if (users.size == 0) {
                     emptyBlock()

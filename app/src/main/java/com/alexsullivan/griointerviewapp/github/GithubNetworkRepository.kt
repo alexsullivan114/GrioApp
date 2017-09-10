@@ -24,7 +24,7 @@ class GithubNetworkRepository(private val service: GithubService): GithubReposit
                 .create()
             val client = OkHttpClient()
             val service = Retrofit.Builder().client(client)
-                .baseUrl(GithubService.baseUrl)
+                .baseUrl(githubBaseApiUrl)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .build().create(GithubService::class.java)
@@ -35,6 +35,10 @@ class GithubNetworkRepository(private val service: GithubService): GithubReposit
 
     private fun loadRepositoryData(username: String) = service.loadUsersRepos(username)
 
+    /**
+     * Load the user data associated with the provided username. If the call isn't succesful,
+     * we're going to assume it wasn't a valid username and return nothing.
+     */
     private fun loadUserDataInternal(username: String): Observable<GithubUser> {
         return service.loadUserData(username)
             .flatMapObservable {
